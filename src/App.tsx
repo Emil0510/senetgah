@@ -125,7 +125,7 @@ function App() {
     <div className="min-h-screen bg-neutral-50">
       <div className={`max-w-7xl mx-auto ${isMobile ? 'px-4' : 'px-4 sm:px-6 lg:px-8'} ${isMobile ? 'py-4' : 'py-8'}`}>
         <div className={`text-center ${isMobile ? 'mb-4 pb-4' : 'mb-8 pb-6'} ${isMobile ? 'px-2' : 'px-4'}`}>
-          <Logo />
+          <Logo colors={colors.length > 0 ? colors : undefined} />
           <p className={`mt-3 ${isMobile ? 'text-xs' : 'text-sm'} text-neutral-600 max-w-2xl mx-auto`}>
             Extract beautiful color palettes from any image
           </p>
