@@ -13,6 +13,12 @@ import {
   ColorVariations as ColorVariationsType
 } from './utils/colorExtractor';
 import { copyToClipboard } from './utils/exportFormats';
+import {
+  trackColorCountDecrease,
+  trackColorCountIncrease,
+  trackColorSelect,
+  trackColorCopy
+} from './utils/analytics';
 
 function App() {
   const [imageUrl, setImageUrl] = useState<string | null>(null);
@@ -57,12 +63,14 @@ function App() {
   const handleColorSelect = (index: number) => {
     setSelectedColorIndex(index);
     setColorVariations(generateColorVariations(colors[index].hex));
+    trackColorSelect(colors[index].hex, index);
   };
 
-  const handleColorCopy = async (hex: string, index?: number) => {
+  const handleColorCopy = async (hex: string, index?: number, source: 'swatch' | 'variation' = 'swatch') => {
     const success = await copyToClipboard(hex);
     if (success) {
       showToastMessage(`Copied ${hex.toUpperCase()}`);
+      trackColorCopy(hex, source);
       if (index !== undefined) {
         setCopiedColorIndex(index);
         setTimeout(() => setCopiedColorIndex(null), 1000);
@@ -148,7 +156,9 @@ function App() {
                     <button
                       onClick={() => {
                         if (colorCount > 3) {
-                          handleColorCountChange(colorCount - 1);
+                          const newCount = colorCount - 1;
+                          trackColorCountDecrease(newCount);
+                          handleColorCountChange(newCount);
                         }
                       }}
                       disabled={colorCount <= 3}
@@ -161,7 +171,9 @@ function App() {
                     <button
                       onClick={() => {
                         if (colorCount < 12) {
-                          handleColorCountChange(colorCount + 1);
+                          const newCount = colorCount + 1;
+                          trackColorCountIncrease(newCount);
+                          handleColorCountChange(newCount);
                         }
                       }}
                       disabled={colorCount >= 12}
@@ -199,7 +211,7 @@ function App() {
                 <ColorVariations
                   baseColor={colors[selectedColorIndex].hex}
                   variations={colorVariations}
-                  onCopy={(color) => handleColorCopy(color)}
+                  onCopy={(color) => handleColorCopy(color, undefined, 'variation')}
                 />
               )}
 

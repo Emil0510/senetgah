@@ -11,6 +11,7 @@ import {
   exportToKotlin,
   copyToClipboard
 } from '../utils/exportFormats';
+import { trackExportFormatChange, trackExportCopy } from '../utils/analytics';
 
 interface ExportPanelProps {
   colors: ExtractedColor[];
@@ -57,6 +58,7 @@ export default function ExportPanel({ colors }: ExportPanelProps) {
     const content = getExportContent();
     const success = await copyToClipboard(content);
     if (success) {
+      trackExportCopy(activeFormat);
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     }
@@ -88,7 +90,10 @@ export default function ExportPanel({ colors }: ExportPanelProps) {
           {formats.map((format) => (
             <button
               key={format.id}
-              onClick={() => setActiveFormat(format.id)}
+              onClick={() => {
+                trackExportFormatChange(format.id);
+                setActiveFormat(format.id);
+              }}
               className={`
                 flex-1 px-4 py-2.5 text-sm font-medium transition-colors
                 ${activeFormat === format.id

@@ -1,5 +1,6 @@
 import { useRef, useState } from 'react';
 import { Upload, X } from 'lucide-react';
+import { trackImageUpload, trackImageClear } from '../utils/analytics';
 
 interface ImageUploadProps {
   onImageLoad: (image: HTMLImageElement, file: File) => void;
@@ -17,6 +18,7 @@ export default function ImageUpload({ onImageLoad, onClear, currentImage }: Imag
       return;
     }
 
+    trackImageUpload();
     const reader = new FileReader();
     reader.onload = (e) => {
       const img = new Image();
@@ -69,7 +71,10 @@ export default function ImageUpload({ onImageLoad, onClear, currentImage }: Imag
             className="w-full mx-auto h-full object-contain"
           />
           <button
-            onClick={onClear}
+            onClick={() => {
+              trackImageClear();
+              onClear();
+            }}
             className="absolute top-3 right-3 p-2 bg-white/90 hover:bg-white rounded-lg border border-neutral-200 transition-all shadow-sm hover:shadow"
           >
             <X className="w-4 h-4 text-neutral-700" />
