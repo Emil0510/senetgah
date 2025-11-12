@@ -12,6 +12,7 @@ import {
   copyToClipboard
 } from '../utils/exportFormats';
 import { trackExportFormatChange, trackExportCopy } from '../utils/analytics';
+import { useMobile } from '../hooks/useMobile';
 
 interface ExportPanelProps {
   colors: ExtractedColor[];
@@ -20,6 +21,7 @@ interface ExportPanelProps {
 type ExportFormat = 'css' | 'tailwind' | 'scss' | 'json' | 'swift' | 'flutter' | 'kotlin';
 
 export default function ExportPanel({ colors }: ExportPanelProps) {
+  const isMobile = useMobile();
   const [activeFormat, setActiveFormat] = useState<ExportFormat>('css');
   const [copied, setCopied] = useState(false);
 
@@ -67,26 +69,26 @@ export default function ExportPanel({ colors }: ExportPanelProps) {
   return (
     <div className="bg-white rounded-lg border border-neutral-200 overflow-hidden">
       <div className="border-b border-neutral-200">
-        <div className="flex items-center justify-between p-4">
-          <h3 className="text-sm font-semibold text-neutral-900">Export Palette</h3>
+        <div className={`flex items-center ${isMobile ? 'justify-between' : 'justify-between'} ${isMobile ? 'p-3' : 'p-4'}`}>
+          <h3 className={`${isMobile ? 'text-xs' : 'text-sm'} font-semibold text-neutral-900`}>Export Palette</h3>
           <button
             onClick={handleCopy}
-            className="flex items-center gap-2 px-3 py-1.5 text-sm font-medium text-neutral-700 hover:text-neutral-900 hover:bg-neutral-100 rounded-md transition-colors"
+            className={`flex items-center ${isMobile ? 'gap-1' : 'gap-2'} ${isMobile ? 'px-2 py-1' : 'px-3 py-1.5'} ${isMobile ? 'text-xs' : 'text-sm'} font-medium text-neutral-700 hover:text-neutral-900 hover:bg-neutral-100 rounded-md transition-colors`}
           >
             {copied ? (
               <>
-                <Check className="w-4 h-4" />
-                Copied!
+                <Check className={isMobile ? 'w-3.5 h-3.5' : 'w-4 h-4'} />
+                {!isMobile && 'Copied!'}
               </>
             ) : (
               <>
-                <Copy className="w-4 h-4" />
-                Copy
+                  <Copy className={isMobile ? 'w-3.5 h-3.5' : 'w-4 h-4'} />
+                  {!isMobile && 'Copy'}
               </>
             )}
           </button>
         </div>
-        <div className="flex border-t border-neutral-100">
+        <div className={`flex ${isMobile ? 'overflow-x-auto' : ''} border-t border-neutral-100`}>
           {formats.map((format) => (
             <button
               key={format.id}
@@ -95,7 +97,7 @@ export default function ExportPanel({ colors }: ExportPanelProps) {
                 setActiveFormat(format.id);
               }}
               className={`
-                flex-1 px-4 py-2.5 text-sm font-medium transition-colors
+                ${isMobile ? 'flex-shrink-0' : 'flex-1'} ${isMobile ? 'px-3 py-2' : 'px-4 py-2.5'} ${isMobile ? 'text-xs' : 'text-sm'} font-medium transition-colors
                 ${activeFormat === format.id
                   ? 'text-neutral-900 border-b-2 border-neutral-900 bg-neutral-50'
                   : 'text-neutral-600 hover:text-neutral-900 hover:bg-neutral-50'
@@ -108,8 +110,8 @@ export default function ExportPanel({ colors }: ExportPanelProps) {
         </div>
       </div>
 
-      <div className="p-4">
-        <pre className="bg-neutral-50 rounded-lg p-4 text-xs font-mono text-neutral-800 overflow-x-auto border border-neutral-200">
+      <div className={isMobile ? 'p-3' : 'p-4'}>
+        <pre className={`bg-neutral-50 rounded-lg ${isMobile ? 'p-2' : 'p-4'} ${isMobile ? 'text-xs' : 'text-xs'} font-mono text-neutral-800 overflow-x-auto border border-neutral-200`}>
           {getExportContent()}
         </pre>
       </div>

@@ -22,7 +22,14 @@ let analytics: ReturnType<typeof getAnalytics> | null = null;
 
 // Only initialize analytics in browser environment
 if (typeof window !== 'undefined') {
-  analytics = getAnalytics(app);
+  try {
+    analytics = getAnalytics(app);
+  } catch (error) {
+    // Analytics may fail on localhost if domain isn't registered
+    // This is fine - the app will work without analytics
+    console.warn("Firebase Analytics initialization failed:", error);
+    analytics = null;
+  }
 }
 
 export { app, analytics };

@@ -2,16 +2,19 @@ import { useState } from 'react';
 import ImageUpload from './components/ImageUpload';
 import ColorSwatch from './components/ColorSwatch';
 import ColorVariations from './components/ColorVariations';
+import GradientPanel from './components/GradientPanel';
 import ExportPanel from './components/ExportPanel';
 import Toast from './components/Toast';
 import Logo from './components/Logo';
 import { Plus, Minus } from 'lucide-react';
+import { useMobile } from './hooks/useMobile';
 import {
   ExtractedColor,
   extractColorsFromImage,
   generateColorVariations,
   ColorVariations as ColorVariationsType
 } from './utils/colorExtractor';
+import { generateGradients } from './utils/gradientGenerator';
 import { copyToClipboard } from './utils/exportFormats';
 import {
   trackColorCountDecrease,
@@ -21,6 +24,7 @@ import {
 } from './utils/analytics';
 
 function App() {
+  const isMobile = useMobile();
   const [imageUrl, setImageUrl] = useState<string | null>(null);
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [colors, setColors] = useState<ExtractedColor[]>([]);
@@ -31,6 +35,9 @@ function App() {
   const [toastMessage, setToastMessage] = useState('');
   const [showToast, setShowToast] = useState(false);
   const [copiedColorIndex, setCopiedColorIndex] = useState<number | null>(null);
+
+  // Generate gradients from the color palette
+  const gradients = colors.length > 0 ? generateGradients(colors) : [];
 
   const handleImageLoad = async (image: HTMLImageElement, file: File) => {
     setIsExtracting(true);
@@ -116,40 +123,41 @@ function App() {
 
   return (
     <div className="min-h-screen bg-neutral-50">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="mb-8">
+      <div className={`max-w-7xl mx-auto ${isMobile ? 'px-4' : 'px-4 sm:px-6 lg:px-8'} ${isMobile ? 'py-4' : 'py-8'}`}>
+        <div className={`text-center ${isMobile ? 'mb-4 pb-4' : 'mb-8 pb-6'} ${isMobile ? 'px-2' : 'px-4'}`}>
           <Logo />
-          <p className="mt-2 text-sm text-neutral-600">
+          <p className={`mt-3 ${isMobile ? 'text-xs' : 'text-sm'} text-neutral-600 max-w-2xl mx-auto`}>
             Extract beautiful color palettes from any image
           </p>
         </div>
 
-        <div className="space-y-6">
-          <div className={`transition-all duration-300 ${colors.length > 0 ? 'mb-6' : 'mb-0'}`}>
+        <div className={`${isMobile ? 'space-y-4' : 'space-y-6'}`}>
+          <div className={`transition-all duration-300 ${colors.length > 0 ? (isMobile ? 'mb-4' : 'mb-6') : 'mb-0'}`}>
             <ImageUpload
               onImageLoad={handleImageLoad}
               onClear={handleClear}
               currentImage={imageUrl}
+              isLoading={isExtracting}
             />
             {imageFile && (
-              <p className="mt-2 text-xs text-neutral-500">
+              <p className={`mt-2 ${isMobile ? 'text-xs' : 'text-xs'} text-neutral-500`}>
                 {getImageInfo()}
               </p>
             )}
           </div>
 
           {isExtracting && (
-            <div className="bg-white rounded-lg border border-neutral-200 p-8 text-center">
-              <div className="inline-block w-8 h-8 border-2 border-neutral-300 border-t-neutral-900 rounded-full animate-spin"></div>
-              <p className="mt-4 text-sm text-neutral-600">Extracting colors...</p>
+            <div className={`bg-white rounded-lg border border-neutral-200 ${isMobile ? 'p-6' : 'p-8'} text-center`}>
+              <div className={`inline-block ${isMobile ? 'w-6 h-6' : 'w-8 h-8'} border-2 border-neutral-300 border-t-neutral-900 rounded-full animate-spin`}></div>
+              <p className={`${isMobile ? 'mt-3' : 'mt-4'} ${isMobile ? 'text-xs' : 'text-sm'} text-neutral-600`}>Extracting colors...</p>
             </div>
           )}
 
           {!isExtracting && colors.length > 0 && (
             <>
-              <div className="bg-white rounded-lg border border-neutral-200 p-6 transition-all duration-300">
-                <div className="flex items-center justify-between mb-6">
-                  <h2 className="text-sm font-semibold text-neutral-900 transition-all duration-300">
+              <div className={`bg-white rounded-lg border border-neutral-200 ${isMobile ? 'p-4' : 'p-6'} transition-all duration-300`}>
+                <div className={`flex ${isMobile ? 'flex-col' : 'items-center'} ${isMobile ? 'gap-3' : 'justify-between'} ${isMobile ? 'mb-4' : 'mb-6'}`}>
+                  <h2 className={`${isMobile ? 'text-xs' : 'text-sm'} font-semibold text-neutral-900 transition-all duration-300`}>
                     Extracted Palette ({colors.length} colors)
                   </h2>
                   <div className="flex items-center gap-2">
@@ -185,7 +193,7 @@ function App() {
                   </div>
                 </div>
 
-                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-4 transition-all duration-300">
+                <div className={`grid ${isMobile ? 'grid-cols-2' : 'grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6'} ${isMobile ? 'gap-2' : 'gap-4'} transition-all duration-300`}>
                   {colors.map((color, index) => (
                     <div
                       key={`${color.hex}-${index}`}
@@ -213,6 +221,10 @@ function App() {
                   variations={colorVariations}
                   onCopy={(color) => handleColorCopy(color, undefined, 'variation')}
                 />
+              )}
+
+              {gradients.length > 0 && (
+                <GradientPanel gradients={gradients} colors={colors} />
               )}
 
               <ExportPanel colors={colors} />
