@@ -1,0 +1,31 @@
+# Cloudflare Pages Configuration
+# This configuration is for deploying your React app to Cloudflare Pages
+
+name = "senetgah"
+compatibility_date = "2024-01-01"
+pages_build_output_dir = "dist"
+
+# Production environment
+[env.production]
+name = "senetgah"
+
+# Preview/staging environment (optional)
+[env.preview]
+name = "senetgah-preview"
+
+# Custom Domain Setup:
+# 1. Deploy your app: npm run deploy
+# 2. Go to Cloudflare Dashboard > Workers & Pages > senetgah
+# 3. Navigate to "Custom domains" tab
+# 4. Click "Set up a custom domain"
+# 5. Enter your domain (e.g., example.com or www.example.com)
+# 6. Follow the DNS setup instructions
+# 7. Cloudflare will automatically provision SSL certificates
+
+# Environment Variables:
+# For local development, create a .dev.vars file (not committed to git)
+# Format: KEY = "value"
+# Example:
+# VITE_API_URL = "https://api.example.com"
+# VITE_SUPABASE_URL = "https://your-project.supabase.co"
+
