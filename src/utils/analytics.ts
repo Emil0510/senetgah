@@ -54,11 +54,11 @@ export const trackGradientSelect = (gradientId: string, gradientName: string) =>
   trackEvent('gradient_select', { gradient_id: gradientId, gradient_name: gradientName });
 };
 
-export const trackGradientCopy = (gradientId: string, format: 'css' | 'tailwind' | 'direct') => {
+export const trackGradientCopy = (gradientId: string, format: 'css' | 'tailwind' | 'scss' | 'json' | 'swift' | 'flutter' | 'kotlin' | 'direct') => {
   trackEvent('gradient_copy', { gradient_id: gradientId, format });
 };
 
-export const trackGradientFormatChange = (format: 'css' | 'tailwind') => {
+export const trackGradientFormatChange = (format: 'css' | 'tailwind' | 'scss' | 'json' | 'swift' | 'flutter' | 'kotlin') => {
   trackEvent('gradient_format_change', { format });
 };
 

@@ -1,7 +1,16 @@
 import { Copy, Check, Shuffle } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { Gradient } from '../utils/gradientGenerator';
-import { exportGradientToCSS, exportGradientToTailwind, generateShuffledGradients } from '../utils/gradientGenerator';
+import {
+  exportGradientToCSS,
+  exportGradientToTailwind,
+  exportGradientToSCSS,
+  exportGradientToJSON,
+  exportGradientToSwift,
+  exportGradientToFlutter,
+  exportGradientToKotlin,
+  generateShuffledGradients
+} from '../utils/gradientGenerator';
 import { copyToClipboard } from '../utils/exportFormats';
 import { ExtractedColor } from '../utils/colorExtractor';
 import { useMobile } from '../hooks/useMobile';
@@ -17,7 +26,7 @@ interface GradientPanelProps {
   colors: ExtractedColor[];
 }
 
-type ExportFormat = 'css' | 'tailwind';
+type ExportFormat = 'css' | 'tailwind' | 'scss' | 'json' | 'swift' | 'flutter' | 'kotlin';
 
 export default function GradientPanel({ gradients: initialGradients, colors }: GradientPanelProps) {
   const isMobile = useMobile();
@@ -52,7 +61,12 @@ export default function GradientPanel({ gradients: initialGradients, colors }: G
 
   const formats: { id: ExportFormat; label: string }[] = [
     { id: 'css', label: 'CSS' },
-    { id: 'tailwind', label: 'Tailwind' }
+    { id: 'tailwind', label: 'Tailwind' },
+    { id: 'scss', label: 'SCSS' },
+    { id: 'json', label: 'JSON' },
+    { id: 'swift', label: 'Swift' },
+    { id: 'flutter', label: 'Flutter' },
+    { id: 'kotlin', label: 'Kotlin' }
   ];
 
   const getExportContent = (): string => {
@@ -63,6 +77,16 @@ export default function GradientPanel({ gradients: initialGradients, colors }: G
         return exportGradientToCSS(selectedGradient, 'gradient');
       case 'tailwind':
         return exportGradientToTailwind(selectedGradient);
+      case 'scss':
+        return exportGradientToSCSS(selectedGradient, 'gradient');
+      case 'json':
+        return exportGradientToJSON(selectedGradient);
+      case 'swift':
+        return exportGradientToSwift(selectedGradient);
+      case 'flutter':
+        return exportGradientToFlutter(selectedGradient);
+      case 'kotlin':
+        return exportGradientToKotlin(selectedGradient);
       default:
         return '';
     }
@@ -130,7 +154,7 @@ export default function GradientPanel({ gradients: initialGradients, colors }: G
           </div>
         </div>
         {selectedGradient && (
-          <div className="flex border-t border-neutral-100">
+          <div className={`flex ${isMobile ? 'overflow-x-auto' : ''} border-t border-neutral-100`}>
             {formats.map((format) => (
               <button
                 key={format.id}
@@ -139,7 +163,7 @@ export default function GradientPanel({ gradients: initialGradients, colors }: G
                   setActiveFormat(format.id);
                 }}
                 className={`
-                  flex-1 ${isMobile ? 'px-2 py-2' : 'px-4 py-2.5'} ${isMobile ? 'text-xs' : 'text-sm'} font-medium transition-colors
+                  ${isMobile ? 'flex-shrink-0' : 'flex-1'} ${isMobile ? 'px-3 py-2' : 'px-4 py-2.5'} ${isMobile ? 'text-xs' : 'text-sm'} font-medium transition-colors
                   ${activeFormat === format.id
                     ? 'text-neutral-900 border-b-2 border-neutral-900 bg-neutral-50'
                     : 'text-neutral-600 hover:text-neutral-900 hover:bg-neutral-50'

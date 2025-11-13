@@ -607,3 +607,99 @@ export const exportGradientToTailwind = (gradient: Gradient): string => {
   return `className="${tailwindDirection} ${colorStops}"`;
 };
 
+/**
+ * Generate SCSS gradient variable
+ */
+export const exportGradientToSCSS = (gradient: Gradient, variableName: string = 'gradient'): string => {
+  return `$${variableName}: ${gradient.css};`;
+};
+
+/**
+ * Generate JSON gradient data
+ */
+export const exportGradientToJSON = (gradient: Gradient): string => {
+  const gradientData = {
+    name: gradient.name,
+    css: gradient.css,
+    colors: gradient.colors,
+    direction: gradient.direction,
+    animated: gradient.animated || false,
+    grainy: gradient.grainy || false
+  };
+  return JSON.stringify(gradientData, null, 2);
+};
+
+/**
+ * Generate Swift gradient code
+ */
+export const exportGradientToSwift = (gradient: Gradient): string => {
+  const colors = gradient.colors.map((color, index) => {
+    const hex = color.replace('#', '');
+    return `    let color${index + 1} = UIColor(hex: "${hex}")`;
+  }).join('\n');
+  
+  const gradientCode = `let gradient = CAGradientLayer()
+gradient.colors = [${gradient.colors.map((_, i) => `color${i + 1}.cgColor`).join(', ')}]
+gradient.startPoint = CGPoint(x: 0, y: 0)
+gradient.endPoint = CGPoint(x: 1, y: 0)
+gradient.frame = view.bounds`;
+
+  return `${colors}\n\n${gradientCode}`;
+};
+
+/**
+ * Generate Flutter gradient code
+ */
+export const exportGradientToFlutter = (gradient: Gradient): string => {
+  const colors = gradient.colors.map((color, index) => {
+    const hex = color.replace('#', '').toUpperCase();
+    return `    static const Color color${index + 1} = Color(0xFF${hex});`;
+  }).join('\n');
+  
+  // Determine gradient type and direction
+  let gradientType = 'LinearGradient';
+  let direction = 'begin: Alignment.topLeft,\n      end: Alignment.topRight,';
+  
+  if (gradient.id === 'radial') {
+    gradientType = 'RadialGradient';
+    direction = 'center: Alignment.center,\n      radius: 1.0,';
+  } else if (gradient.direction === 'to bottom') {
+    direction = 'begin: Alignment.topCenter,\n      end: Alignment.bottomCenter,';
+  } else if (gradient.direction === '135deg') {
+    direction = 'begin: Alignment.topLeft,\n      end: Alignment.bottomRight,';
+  }
+  
+  const colorList = gradient.colors.map((_, i) => `color${i + 1}`).join(', ');
+  
+  const gradientCode = `Container(\n  decoration: BoxDecoration(\n    gradient: ${gradientType}(\n      ${direction}\n      colors: [${colorList}],\n    ),\n  ),\n)`;
+
+  return `${colors}\n\n${gradientCode}`;
+};
+
+/**
+ * Generate Kotlin gradient code
+ */
+export const exportGradientToKotlin = (gradient: Gradient): string => {
+  const colors = gradient.colors.map((color, index) => {
+    const hex = color.replace('#', '').toUpperCase();
+    const r = parseInt(hex.substring(0, 2), 16);
+    const g = parseInt(hex.substring(2, 4), 16);
+    const b = parseInt(hex.substring(4, 6), 16);
+    return `    val color${index + 1} = Color(0xFF${hex}) // RGB(${r}, ${g}, ${b})`;
+  }).join('\n');
+  
+  // Determine gradient orientation
+  let orientation = 'Orientation.HORIZONTAL';
+  if (gradient.direction === 'to bottom') {
+    orientation = 'Orientation.VERTICAL';
+  } else if (gradient.direction === '135deg') {
+    orientation = 'Orientation.TL_BR';
+  }
+  
+  const colorArray = gradient.colors.map((_, i) => `color${i + 1}`).join(', ');
+  
+  const gradientCode = `val gradient = GradientDrawable(\n    ${orientation},\n    intArrayOf(${colorArray})\n)\nview.background = gradient`;
+
+  return `${colors}\n\n${gradientCode}`;
+};
+
