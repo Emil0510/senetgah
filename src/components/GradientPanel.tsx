@@ -5,6 +5,12 @@ import { exportGradientToCSS, exportGradientToTailwind, generateShuffledGradient
 import { copyToClipboard } from '../utils/exportFormats';
 import { ExtractedColor } from '../utils/colorExtractor';
 import { useMobile } from '../hooks/useMobile';
+import {
+  trackGradientShuffle,
+  trackGradientSelect,
+  trackGradientCopy,
+  trackGradientFormatChange
+} from '../utils/analytics';
 
 interface GradientPanelProps {
   gradients: Gradient[];
@@ -33,6 +39,7 @@ export default function GradientPanel({ gradients: initialGradients, colors }: G
   }, [initialGradients]);
 
   const handleShuffle = () => {
+    trackGradientShuffle();
     const shuffledGradients = generateShuffledGradients(colors);
     setGradients(shuffledGradients);
     setIsShuffled(true);
@@ -65,6 +72,7 @@ export default function GradientPanel({ gradients: initialGradients, colors }: G
     const content = getExportContent();
     const success = await copyToClipboard(content);
     if (success) {
+      trackGradientCopy(selectedGradient?.id || '', activeFormat);
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     }
@@ -74,6 +82,7 @@ export default function GradientPanel({ gradients: initialGradients, colors }: G
     const css = `background: ${gradient.css};`;
     const success = await copyToClipboard(css);
     if (success) {
+      trackGradientCopy(gradient.id, 'direct');
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     }
@@ -125,7 +134,10 @@ export default function GradientPanel({ gradients: initialGradients, colors }: G
             {formats.map((format) => (
               <button
                 key={format.id}
-                onClick={() => setActiveFormat(format.id)}
+                onClick={() => {
+                  trackGradientFormatChange(format.id);
+                  setActiveFormat(format.id);
+                }}
                 className={`
                   flex-1 ${isMobile ? 'px-2 py-2' : 'px-4 py-2.5'} ${isMobile ? 'text-xs' : 'text-sm'} font-medium transition-colors
                   ${activeFormat === format.id
@@ -154,7 +166,10 @@ export default function GradientPanel({ gradients: initialGradients, colors }: G
                   : 'border-neutral-200 hover:border-neutral-400'
                 }
               `}
-              onClick={() => setSelectedGradient(gradient)}
+              onClick={() => {
+                trackGradientSelect(gradient.id, gradient.name);
+                setSelectedGradient(gradient);
+              }}
             >
               <div
                 className={`${isMobile ? 'h-24' : 'h-32'} w-full relative ${gradient.animated ? gradient.animationClass : ''} ${gradient.grainy ? 'grainy-gradient' : ''}`}

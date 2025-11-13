@@ -6,6 +6,7 @@ export const trackEvent = (eventName: string, eventParams?: Record<string, any>)
   if (analytics) {
     try {
       logEvent(analytics as Analytics, eventName, eventParams);
+      console.log('Analytics log:');
     } catch (error) {
       console.error('Analytics error:', error);
     }
@@ -43,5 +44,25 @@ export const trackExportFormatChange = (format: string) => {
 
 export const trackExportCopy = (format: string) => {
   trackEvent('export_copy', { format });
+};
+
+export const trackGradientShuffle = () => {
+  trackEvent('gradient_shuffle');
+};
+
+export const trackGradientSelect = (gradientId: string, gradientName: string) => {
+  trackEvent('gradient_select', { gradient_id: gradientId, gradient_name: gradientName });
+};
+
+export const trackGradientCopy = (gradientId: string, format: 'css' | 'tailwind' | 'direct') => {
+  trackEvent('gradient_copy', { gradient_id: gradientId, format });
+};
+
+export const trackGradientFormatChange = (format: 'css' | 'tailwind') => {
+  trackEvent('gradient_format_change', { format });
+};
+
+export const trackColorVariationCopy = (baseColor: string, variationType: string) => {
+  trackEvent('color_variation_copy', { base_color: baseColor, variation_type: variationType });
 };
 
